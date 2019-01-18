@@ -1,0 +1,45 @@
+#!/usr/local/bin/python3.7
+
+##start with import's
+
+
+import sys
+import os
+import stat
+import multiprocessing
+
+##Lets make a list of all of the global variable list
+
+#CV_LOG_DIR="/var/log/clamscan"
+#WARNED_USERS_DIR="/opt/warned_users"
+
+CV_LOG_DIR="/var/log/clamscan"
+WARNED_USERS_DIR="/home/clen/snap/file1"
+
+
+##Lets test for the presence for the existance of /var/log/clamscan
+
+print("Running preliminary tests to check for presence of files/directories for a smooth finish")
+
+def file_init(file):
+	try:
+		flag_dir=stat.S_ISDIR(os.lstat(file)[stat.ST_MODE])
+		flag_file=stat.S_ISREG(os.lstat(file)[stat.ST_MODE])
+		
+		if flag_dir:
+			print(f"[+] Directory found  ::  {file}")
+		elif flag_file:
+			print(f"[+] Conf File found  ::  {file})
+		else:
+			print("Not a valid file/directory")
+	except FileNotFoundError:
+		print("[!!] Nxot found, Setting it up")
+		print("[*] This may take some time, keep calm.")
+		if flag_dir:
+			os.mkdir(file)
+		elif flag_file:
+			os.mknod(file)
+		else:
+			print("Section not yet planned")
+
+		print(f"[+]Set up :: {file}")
