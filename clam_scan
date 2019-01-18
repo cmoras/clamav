@@ -7,14 +7,18 @@ import sys
 import os
 import stat
 import multiprocessing
+import datetime from datetime
 
 ##Lets make a list of all of the global variable list
 
-#CV_LOG_DIR="/var/log/clamscan"
-#WARNED_USERS_DIR="/opt/warned_users"
-
 CV_LOG_DIR="/var/log/clamscan"
-WARNED_USERS_DIR="/home/clen/snap/file1"
+
+LOCK_FILE="$CV_LOG_DIR/clamav_full_scan_quarantine.lock"
+
+WARNED_USERS_DIR="/opt/warned_users"
+
+#CV_LOG_DIR="/home/clen.mo/test/testclen/"
+#WARNED_USERS_DIR="/home/clen.mo/test/file1"
 
 
 ##Lets test for the presence for the existance of /var/log/clamscan
@@ -29,17 +33,35 @@ def file_init(file):
 		if flag_dir:
 			print(f"[+] Directory found  ::  {file}")
 		elif flag_file:
-			print(f"[+] Conf File found  ::  {file})
+			print(f"[+] Conf File found  ::  {file}")
 		else:
 			print("Not a valid file/directory")
 	except FileNotFoundError:
-		print("[!!] Nxot found, Setting it up")
+		print("[!!] Not found, Setting it up")
 		print("[*] This may take some time, keep calm.")
-		if flag_dir:
+		if file[-1] == '/':
 			os.mkdir(file)
-		elif flag_file:
+		elif file[-1] != '/':
 			os.mknod(file)
+			if file[-4] == 'lock':
+				with open(file) as it:
+					format=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+					it.write(format + " FULL WEEK SCAN")
 		else:
 			print("Section not yet planned")
 
 		print(f"[+]Set up :: {file}")
+		
+
+#Some testing her before we proceed.
+#file_init(CV_LOG_DIR)
+#file_init(WARNED_USERS_DIR)
+#file_init(LOCK_FILE)
+
+
+##we have completed setting basic structure.
+
+##Lets start with fresh_clam update
+
+def fresh_clam()
+	p1=Popen(["/usr/bin/freshclam", "--log=$CV_LOGFILE --user=$USER --verbose"])
