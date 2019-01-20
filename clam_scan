@@ -2,7 +2,6 @@
 
 ##start with import's
 
-
 import sys
 import os
 import stat
@@ -21,7 +20,7 @@ CV_LOG_DIR="/var/log/clamscan/"
 CLAMSCAN_SIGN="/usr/share/clamav/"
 NEW_CLAMSCAN_SIGN="/usr/local/cpanel/3rdparty/share/clamav/"
 
-CV_LOGFILE=CV_LOG_DIR+'/clamav_full_scan.log'
+CV_LOGFILE=CV_LOG_DIR+'clamav_full_scan.log'
 
 
 LOCK_FILE=CV_LOG_DIR+'clamav_full_scan_quarantine.lock'
@@ -82,7 +81,8 @@ def file_init(file):
 ##Lets start with fresh_clam update
 
 def fresh_clam():
-	p1=Popen(["/usr/bin/freshclam", "-l", CV_LOGFILE, "--verbose"])
+	#p1=Popen(["/usr/bin/freshclam", "-l", CV_LOGFILE, "--verbose"])
+	p1=Popen(["/usr/bin/freshclam", "--verbose"])
 	out,error=p1.communicate()
 
 ##fresh clam update here.
@@ -97,7 +97,7 @@ password='?x/;(F5,;Sc^&vaJ'
 def sitelock_wget():
 	print(f"child pid : {os.getpid()}")
 	print("================================================")
-	print("downnloading sitelock")
+	print("downloading sitelock")
 	print("================================================")
 	portion1="https://sync-box.webhostbox.net/sitelock_sign_"
 	portion4="/tmp/clamav/sitelock_sign_"
@@ -118,12 +118,12 @@ def sitelock_wget():
 def hostgator_wget():
 	print(f"child pid : {os.getpid()}")
 	print("================================================")
-	print("downnloading hostgator")
+	print("downloading hostgator")
 	print("================================================")
 	portion1="https://sync-box.webhostbox.net/hostgator_sign_"
 	portion4="/tmp/clamav/hostgator_sign_"
-	src_link=portion1+today_date+portion3
-	dest_link=portion4+today_date+portion3
+	src_link1=portion1+today_date+portion3
+	dest_link1=portion4+today_date+portion3
 	src_link2=portion1+yesterday_date+portion3
 	dest_link2=portion4+yesterday_date+portion3
 	r=requests.get(src_link1, verify=False, auth=(user, password))
@@ -154,47 +154,70 @@ def vdeck_wget():
 		p2=Popen(["/usr/bin/wget", "--user", user, "--password", password, "--no-check-certificate", "--tries=3", src_link2, "-O", dest_link2])
 		out,error=p2.communicate()
 
+def lmd_wget():
+	print(f"child pid : {os.getpid()}")
+	print("================================================")
+	print("Downloading Linux-Malware-Detect signatures...")
+	print("================================================")
+	src_link1="http://cdn.rfxn.com/downloads/rfxn.hdb"
+	src_link2="http://cdn.rfxn.com/downloads/rfxn.ndb"
+	dest_link1="/tmp/clamav/lmd.hdb_new"
+	dest_link2="/tmp/clamav/lmd.ndb_new"
+	p1=Popen(["/usr/bin/wget", "--tries=3", src_link1, "-O", dest_link1])
+	out1,error1=p1.communicate()
+
+	p2=Popen(["/usr/bin/wget", "--tries=3", src_link2, "-O", dest_link2])
+	out2,error=p2.communicate()
 
 
 def extract_all():
-	print(f"child pid : {os.getpid()}")
-	for i in os.listdir('/tmp/clamav'):
-		print(f"working on {i}")
-		t=tarfile.open(i, 'r:gz')
-		for j in t:
-			print(f"extracting {j}")
-			task=t.extract(j, path=NEW_CLAMSCAN_SIGN)
-		t.close()
-	for i in os.listdir(NEW_CLAMSCAN_SIGN):
-		os.chown(i, 984, 0)
+    os.chdir('/tmp/clamav')
+    print(f"child pid : {os.getpid()}")
+    for i in os.listdir('/tmp/clamav'):
+        print(f"working on {i}")
+        t=tarfile.open(i, 'r:gz')
+        for j in t:
+            print(f"extracting {j}")
+            task=t.extract(j, path=NEW_CLAMSCAN_SIGN)
+        t.close()
+    os.chdir(NEW_CLAMSCAN_SIGN)
+    for i in os.listdir(NEW_CLAMSCAN_SIGN):
+        os.chown(i, 984, 0)
 
 
-##testing the fucntionality
+#Testing the fucntionality#
 ###########################
-#sitelock_wget()	  #	
+#sitelock_wget()	  #
 #hostgator_wget()         #
-#vdeck_wget()		  #
+#vdeck_wget()             #
+#lmd_wget()		  #
 #Testing more functionhere#
 ###########################
-##
+
+
+###################################
+#Signature downloads complete here#
+###################################
+
+
 
 
 if __name__=="__main__":
 	file_init(CV_LOG_DIR)
 	file_init(WARNED_USERS_DIR)
 	file_init(LOCK_FILE)
+	file_init(CV_LOGFILE)
 	fresh_clam()
 	p1=Process(target=sitelock_wget)
 	p2=Process(target=hostgator_wget)
 	p3=Process(target=vdeck_wget)
-	p4=Process(target=extract_all)
+	p4=Process(target=lmd_wget)
 	p1.start()
 	p2.start()
 	p3.start()
 	p1.join()
 	p2.join()
 	p3.join()
-	p4.start()
-	p4.join()
-	print("done")
+	extract_all()
 
+	print("done")
