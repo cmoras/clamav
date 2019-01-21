@@ -200,7 +200,19 @@ def extract_all():
 ###################################
 
 
+##function cleanup_user_folder() is not required. A separate cron can be added just to do that. it is an extra overhead.
 
+def cleanup_log_folder()
+	temp=[]
+	newtemp=[]	
+	[temp.append(i) for i in os.listdir() if "clamav_trigger_full_scan_" in i]
+	[newtemp.append(i.split('_')[4]) for i in temp]
+	##
+	##now newtemp is a list with usernames. Can i use pool to multiptask the shit of this??
+	##
+	
+
+	
 
 if __name__=="__main__":
 	file_init(CV_LOG_DIR)

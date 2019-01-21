@@ -3,6 +3,13 @@ clamav :  qurantine
 
 https://github.com/codebasics/py/tree/master/Multiprocessing
 
+https://sebastianraschka.com/Articles/2014_multiprocessing.html
+https://data-flair.training/blogs/python-multiprocessing/
+http://www.thehackerwithin.org/wisconsin/posts/python-multiprocessing
+https://stackoverflow.com/questions/3288595/multiprocessing-how-to-use-pool-map-on-a-function-defined-in-a-class
+https://stackabuse.com/parallel-processing-in-python/
+
+
 
 
 testing so far:
